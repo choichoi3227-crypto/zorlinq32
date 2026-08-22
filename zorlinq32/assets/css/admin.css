@@ -1,0 +1,685 @@
+/**
+ * Zorlinq32 - 관리자 화면 스타일
+ * 카드 기반 레이아웃에 부드러운 모서리·그림자·여백을 적용해 한눈에 상태를
+ * 파악할 수 있으면서도 차분하고 세련된 인상을 주도록 구성합니다.
+ */
+
+:root {
+	--zlq32-radius: 12px;
+	--zlq32-radius-sm: 8px;
+	--zlq32-border: #e5e5ea;
+	--zlq32-border-soft: #eeeef1;
+	--zlq32-shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px -16px rgba(20, 20, 30, 0.10);
+	--zlq32-shadow-hover: 0 4px 8px rgba(20, 20, 30, 0.05), 0 14px 32px -14px rgba(20, 20, 30, 0.16);
+	--zlq32-ink: #17181c;
+	--zlq32-ink-muted: #6b6b73;
+	--zlq32-accent: #4f46e5;
+	--zlq32-accent-soft: #eef0ff;
+	--zlq32-success: #0f9d68;
+	--zlq32-success-soft: #ecfaf3;
+	--zlq32-warning: #b57a12;
+	--zlq32-warning-soft: #fdf3e0;
+	--zlq32-danger: #d6373f;
+	--zlq32-danger-soft: #fdecec;
+}
+
+.zorlinq32-wrap {
+	max-width: 1180px;
+	margin-top: 20px;
+}
+
+.zorlinq32-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #fff;
+	color: var(--zlq32-ink);
+	padding: 22px 26px;
+	border-radius: var(--zlq32-radius);
+	border: 1px solid var(--zlq32-border);
+	box-shadow: var(--zlq32-shadow);
+	margin-bottom: 24px;
+}
+
+.zorlinq32-header-logo {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.zorlinq32-header .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	color: var(--zlq32-accent);
+	flex-shrink: 0;
+}
+
+.zorlinq32-header h1 {
+	color: var(--zlq32-ink);
+	font-size: 19px;
+	font-weight: 700;
+	margin: 0;
+	line-height: 1.3;
+}
+
+.zorlinq32-header p {
+	margin: 2px 0 0;
+	color: var(--zlq32-ink-muted);
+	font-size: 13px;
+}
+
+.zorlinq32-header .zorlinq32-version {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--zlq32-accent);
+	background: var(--zlq32-accent-soft);
+	padding: 5px 12px;
+	border-radius: 999px;
+	flex-shrink: 0;
+}
+
+.zorlinq32-notice-saved {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: var(--zlq32-success-soft);
+	color: var(--zlq32-success);
+	border: 1px solid #cdeee0;
+	border-radius: var(--zlq32-radius-sm);
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.zorlinq32-notice-saved .dashicons {
+	color: var(--zlq32-success);
+}
+
+.zorlinq32-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.zorlinq32-card {
+	background: #fff;
+	border: 1px solid var(--zlq32-border);
+	border-radius: var(--zlq32-radius);
+	box-shadow: var(--zlq32-shadow);
+	padding: 20px;
+	transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.zorlinq32-card-wide {
+	/* [애널리틱스] 대시보드 방문 통계 카드는 미니 그래프를 포함하므로 다른 카드보다
+	   넓게 배치해 그래프가 찌그러지지 않도록 합니다. */
+	grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+	.zorlinq32-card-wide {
+		grid-column: span 1;
+	}
+}
+
+.zorlinq32-card h3 {
+	margin: 0 0 12px;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--zlq32-ink-muted);
+}
+
+.zorlinq32-stat {
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--zlq32-ink);
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+
+.zorlinq32-stat-sub {
+	font-size: 12px;
+	color: var(--zlq32-ink-muted);
+	margin-top: 4px;
+}
+
+.zorlinq32-progress {
+	height: 8px;
+	background: #f1f1f4;
+	border-radius: 999px;
+	overflow: hidden;
+	margin-top: 12px;
+}
+
+.zorlinq32-progress-bar {
+	height: 100%;
+	border-radius: 999px;
+	background: var(--zlq32-success);
+	transition: width 0.3s ease;
+}
+
+.zorlinq32-progress-bar.is-warning {
+	background: var(--zlq32-warning);
+}
+
+.zorlinq32-progress-bar.is-critical {
+	background: var(--zlq32-danger);
+}
+
+.zorlinq32-status-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 5px 11px;
+	border-radius: 999px;
+}
+
+.zorlinq32-status-pill.is-on {
+	background: var(--zlq32-success-soft);
+	color: var(--zlq32-success);
+}
+
+.zorlinq32-status-pill.is-off {
+	background: #f4f4f6;
+	color: var(--zlq32-ink-muted);
+}
+
+.zorlinq32-status-pill .dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+/* alpack 스타일 버튼: 포인트(주요 액션) / 세컨더리(보조) / 네거티브(위험) 3종. */
+.zorlinq32-btn,
+.zorlinq32-settings-section .button-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border-radius: var(--zlq32-radius-sm);
+	font-size: 13px;
+	font-weight: 700;
+	padding: 8px 16px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.zorlinq32-btn.is-point,
+.zorlinq32-settings-section .button-primary {
+	background: var(--zlq32-accent) !important;
+	border-color: var(--zlq32-accent) !important;
+	color: #fff !important;
+}
+
+.zorlinq32-btn.is-point:hover,
+.zorlinq32-settings-section .button-primary:hover {
+	background: #4338ca !important;
+	border-color: #4338ca !important;
+}
+
+.zorlinq32-btn.is-secondary {
+	background: transparent;
+	border-color: var(--zlq32-border);
+	color: var(--zlq32-ink);
+}
+
+.zorlinq32-btn.is-secondary:hover {
+	border-color: #c9c9d1;
+	background: #fafafa;
+}
+
+.zorlinq32-btn.is-negative {
+	background: var(--zlq32-danger);
+	border-color: var(--zlq32-danger);
+	color: #fff;
+}
+
+.zorlinq32-btn.is-negative:hover {
+	background: #c22e35;
+	border-color: #c22e35;
+}
+
+.zorlinq32-module-list {
+	background: #fff;
+	border: 1px solid var(--zlq32-border);
+	border-radius: var(--zlq32-radius);
+	box-shadow: var(--zlq32-shadow);
+	overflow: hidden;
+}
+
+.zorlinq32-module-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 15px 20px;
+	border-bottom: 1px solid var(--zlq32-border-soft);
+}
+
+.zorlinq32-module-row:last-child {
+	border-bottom: none;
+}
+
+.zorlinq32-module-row .name {
+	font-weight: 700;
+	color: var(--zlq32-ink);
+	font-size: 13px;
+}
+
+.zorlinq32-module-row .desc {
+	font-size: 12px;
+	color: var(--zlq32-ink-muted);
+	margin-top: 2px;
+}
+
+.zorlinq32-settings-section {
+	background: #fff;
+	border: 1px solid var(--zlq32-border);
+	border-radius: var(--zlq32-radius);
+	box-shadow: var(--zlq32-shadow);
+	padding: 26px 28px;
+	max-width: 760px;
+	margin-bottom: 20px;
+}
+
+.zorlinq32-settings-section h2 {
+	font-size: 16px;
+	font-weight: 700;
+	margin: 0 0 6px;
+}
+
+.zorlinq32-settings-section .form-table th {
+	width: 220px;
+	font-weight: 600;
+	color: var(--zlq32-ink);
+}
+
+.zorlinq32-settings-section input[type="text"],
+.zorlinq32-settings-section input[type="number"],
+.zorlinq32-settings-section input[type="url"],
+.zorlinq32-settings-section select,
+.zorlinq32-settings-section textarea {
+	border-radius: var(--zlq32-radius-sm);
+	border-color: var(--zlq32-border);
+}
+
+.zorlinq32-settings-section input[type="text"]:focus,
+.zorlinq32-settings-section input[type="number"]:focus,
+.zorlinq32-settings-section input[type="url"]:focus,
+.zorlinq32-settings-section select:focus,
+.zorlinq32-settings-section textarea:focus {
+	border-color: var(--zlq32-accent);
+	box-shadow: 0 0 0 1px var(--zlq32-accent);
+}
+
+.zorlinq32-help-text {
+	font-size: 13px;
+	color: var(--zlq32-ink-muted);
+	margin-top: 4px;
+}
+
+.zorlinq32-inline-actions {
+	margin-top: 16px;
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.zorlinq32-inline-result {
+	font-size: 13px;
+	margin-left: 4px;
+}
+
+.zorlinq32-inline-result.success {
+	color: var(--zlq32-success);
+}
+
+.zorlinq32-inline-result.error {
+	color: var(--zlq32-danger);
+}
+
+.zorlinq32-log-table {
+	background: #fff;
+	border: 1px solid var(--zlq32-border);
+	border-radius: var(--zlq32-radius);
+	box-shadow: var(--zlq32-shadow);
+}
+
+.zorlinq32-empty-state {
+	text-align: center;
+	padding: 60px 20px;
+	color: var(--zlq32-ink-muted);
+}
+
+.zorlinq32-empty-state .dashicons {
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+	color: #d3d3d8;
+	margin-bottom: 8px;
+}
+
+.zorlinq32-range-filter {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+#zorlinq32-trend-chart {
+	width: 100%;
+	background: #fff;
+	border: 1px solid var(--zlq32-border);
+	border-radius: var(--zlq32-radius);
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+#zorlinq32-trend-chart svg {
+	display: block;
+}
+
+/* [애널리틱스] 그래프 위 마우스 오버 시 해당 시점의 방문자수/조회수를 보여주는 커스텀 툴팁.
+   브라우저 기본 title 속성 툴팁은 표시가 느리고 스타일을 제어할 수 없어, 직접 그리는
+   경량 툴팁으로 대체했습니다. */
+.zorlinq32-trend-chart {
+	width: 100%;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	padding: 10px;
+	box-sizing: border-box;
+	overflow: visible;
+	position: relative;
+}
+
+.zorlinq32-trend-chart svg {
+	display: block;
+	cursor: crosshair;
+}
+
+.zorlinq32-chart-tooltip {
+	position: absolute;
+	pointer-events: none;
+	background: #1d2327;
+	color: #fff;
+	padding: 6px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	line-height: 1.5;
+	white-space: nowrap;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	opacity: 0;
+	transform: translate(-50%, -100%);
+	transition: opacity 0.08s ease;
+	z-index: 10;
+}
+
+.zorlinq32-chart-tooltip.is-visible {
+	opacity: 1;
+}
+
+.zorlinq32-chart-tooltip .date {
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.zorlinq32-chart-tooltip .metric {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.zorlinq32-chart-tooltip .metric .dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	margin-right: 4px;
+}
+
+.zorlinq32-chart-hover-line {
+	stroke: #8c8f94;
+	stroke-width: 1;
+	stroke-dasharray: 3 3;
+	pointer-events: none;
+}
+
+.zorlinq32-chart-hover-dot {
+	pointer-events: none;
+}
+
+/* [애드센스 보호: 엣지 연동] 클릭 한 번으로 전체 선택되는 복사용 코드 스니펫 박스. */
+.zorlinq32-copy-snippet {
+	background: #1d2327;
+	color: #a9dc76;
+	border-color: #1d2327;
+	font-size: 12px;
+	line-height: 1.6;
+	cursor: text;
+}
+
+/* [SEO 개선] 포커스 키워드 "엔티티(태그)" 입력 UI - 랭크매스 스타일. */
+.zorlinq32-keyword-tags {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	min-height: 36px;
+}
+
+.zorlinq32-keyword-tags:focus-within {
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 1px #4f46e5;
+}
+
+.zorlinq32-keyword-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #f0f0f4;
+	border: 1px solid #dcdcde;
+	border-radius: 999px;
+	padding: 3px 6px 3px 10px;
+	font-size: 12px;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.zorlinq32-keyword-tag.is-primary {
+	background: #eef2ff;
+	border-color: #c7d2fe;
+	color: #3730a3;
+	font-weight: 600;
+}
+
+.zorlinq32-keyword-tag-badge {
+	font-size: 11px;
+	color: #f59e0b;
+}
+
+.zorlinq32-keyword-tag-remove {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+	padding: 0 2px;
+	color: #787c82;
+	border-radius: 50%;
+}
+
+.zorlinq32-keyword-tag-remove:hover {
+	color: #d63638;
+	background: rgba(214, 54, 56, 0.1);
+}
+
+.zorlinq32-keyword-tag-input {
+	flex: 1 1 120px;
+	min-width: 120px;
+	border: none;
+	outline: none;
+	box-shadow: none;
+	padding: 4px 2px;
+	font-size: 13px;
+}
+
+/* [SEO 개선] 메타 설명을 비워둔 경우, 실제로 검색결과에 나갈 자동 생성 문구를 미리보기로 표시. */
+.zorlinq32-auto-description-preview {
+	margin-top: 6px;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border-left: 3px solid #4f46e5;
+	border-radius: 2px;
+	font-size: 12px;
+	color: #50575e;
+}
+
+.zorlinq32-auto-description-preview strong {
+	display: block;
+	margin-bottom: 2px;
+	color: #1d2327;
+}
+
+/* [SEO 대개편] 통합 SEO 패널 - 랭크매스와 동일하게 "하나의 큰 패널"로 보이도록 스타일링. */
+.zorlinq32-seo-summary-bar {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 10px 12px;
+	margin: -12px -12px 12px;
+	background: linear-gradient(135deg, #eef2ff 0%, #f6f7f7 100%);
+	border-bottom: 1px solid #dcdcde;
+}
+
+.zorlinq32-seo-summary-bar.is-empty {
+	color: #646970;
+	font-size: 12px;
+	align-items: center;
+}
+
+.zorlinq32-seo-summary-bar.is-empty .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.zorlinq32-seo-summary-score {
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.zorlinq32-seo-summary-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.zorlinq32-seo-tabs {
+	display: flex;
+	gap: 4px;
+	margin: 0 0 12px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.zorlinq32-seo-tab {
+	flex: 1;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	padding: 8px 4px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #646970;
+	cursor: pointer;
+}
+
+.zorlinq32-seo-tab:hover {
+	color: #1d2327;
+}
+
+.zorlinq32-seo-tab.is-active {
+	color: #4f46e5;
+	border-bottom-color: #4f46e5;
+}
+
+.zorlinq32-seo-tab-panel {
+	padding-bottom: 4px;
+}
+
+/* [애드센스 보호] 현재 활성화된 엣지 보호 경로(Cloudflare 또는 AWS)를 보여주는 상태 카드. */
+.zorlinq32-edge-status-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 14px 16px;
+	border-radius: 8px;
+	margin: 12px 0 16px;
+}
+
+.zorlinq32-edge-status-card .dashicons {
+	margin-top: 2px;
+}
+
+.zorlinq32-edge-status-card strong {
+	display: block;
+	margin-bottom: 4px;
+}
+
+.zorlinq32-edge-status-card p {
+	margin: 0;
+	font-size: 12px;
+	color: #50575e;
+}
+
+.zorlinq32-edge-status-card.is-cloudflare,
+.zorlinq32-edge-status-card.is-aws {
+	background: #edfaf6;
+	border: 1px solid #b7ebde;
+}
+
+.zorlinq32-edge-status-card.is-cloudflare .dashicons,
+.zorlinq32-edge-status-card.is-aws .dashicons {
+	color: #00795e;
+}
+
+.zorlinq32-edge-status-card.is-none {
+	background: #fff8e5;
+	border: 1px solid #f5dfa3;
+}
+
+.zorlinq32-edge-status-card.is-none .dashicons {
+	color: #dba617;
+}
+
+.zorlinq32-edge-compare {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 8px;
+}
+
+.zorlinq32-edge-compare th,
+.zorlinq32-edge-compare td {
+	padding: 8px 10px;
+	font-size: 12px;
+	text-align: left;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.zorlinq32-edge-compare th {
+	color: #646970;
+	font-weight: 600;
+}
