@@ -8,7 +8,8 @@
     "start": "electron .",
     "package:win": "electron-builder --win portable --x64",
     "package:zip": "node scripts/create-desktop-zip.js",
-    "package:win:installer": "electron-builder --win nsis --x64"
+    "package:win:installer": "electron-builder --win nsis --x64",
+    "package:win:ev": "node scripts/build-windows-ev.js"
   },
   "build": {
     "appId": "com.info100.zorlinq32.desktop",

@@ -27,6 +27,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Detect code-signing configuration
+        id: codesign
+        shell: pwsh
+        env:
+          WINDOWS_CODESIGN_P12_BASE64: ${{ secrets.WINDOWS_CODESIGN_P12_BASE64 }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CODESIGN_P12_BASE64)) {
+            "has_codesign=false" >> $env:GITHUB_OUTPUT
+            "artifact_suffix=unsigned-smartscreen-warning" >> $env:GITHUB_OUTPUT
+            Write-Warning "No code-signing certificate secret was provided. The EXE will build, but Windows SmartScreen can block it as an unrecognized app."
+          } else {
+            "has_codesign=true" >> $env:GITHUB_OUTPUT
+            "artifact_suffix=signed" >> $env:GITHUB_OUTPUT
+          }
+
       - name: Build portable Windows EXE
         run: npm run package:win
         env:
@@ -35,16 +50,41 @@ jobs:
           CSC_LINK: ${{ secrets.WINDOWS_CODESIGN_P12_BASE64 }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_PASSWORD }}
 
+      - name: Verify Authenticode signature
+        if: steps.codesign.outputs.has_codesign == 'true'
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path dist -Filter *.exe | Select-Object -First 1
+          if (-not $exe) { throw "No EXE artifact found in dist." }
+          $signature = Get-AuthenticodeSignature -FilePath $exe.FullName
+          $signature | Format-List | Out-File -FilePath dist/authenticode-signature.txt
+          if ($signature.Status -ne 'Valid') {
+            Get-Content dist/authenticode-signature.txt
+            throw "EXE Authenticode signature is not valid: $($signature.Status)"
+          }
+
+      - name: Write unsigned SmartScreen notice
+        if: steps.codesign.outputs.has_codesign != 'true'
+        shell: pwsh
+        run: |
+          @"
+          This artifact is unsigned because WINDOWS_CODESIGN_P12_BASE64 was not configured.
+          Windows Defender SmartScreen may show "Windows protected your PC" for this EXE.
+          For public distribution, configure an OV/EV code-signing certificate secret and rebuild.
+          "@ | Out-File -FilePath dist/UNSIGNED-SMARTSCREEN-NOTICE.txt -Encoding utf8
+
       - name: Build source zip fallback
         run: npm run package:zip
 
       - name: Upload Windows EXE artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zorlinq32-desktop-windows-exe
+          name: zorlinq32-desktop-windows-${{ steps.codesign.outputs.artifact_suffix }}
           path: |
             dist/*.exe
             dist/win-unpacked/**
+            dist/authenticode-signature.txt
+            dist/UNSIGNED-SMARTSCREEN-NOTICE.txt
           if-no-files-found: error
           retention-days: 14
 

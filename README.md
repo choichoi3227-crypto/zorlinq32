@@ -59,3 +59,30 @@ npm run package:zip
    - `WINDOWS_CODESIGN_PASSWORD`: 인증서 비밀번호
 4. `.github/workflows/build-windows.yml` 워크플로우를 실행하면 `electron-builder`가 해당 secrets를 사용해 EXE에 서명합니다.
 5. 서명된 앱도 최초 배포 직후에는 평판이 부족할 수 있으므로, 동일 인증서로 꾸준히 배포해 평판을 쌓아야 합니다.
+
+### SmartScreen 차단 화면이 이미 뜬 경우
+
+배포자가 서명 인증서를 아직 설정하지 않은 CI artifact는 artifact 이름에 `unsigned-smartscreen-warning`이 붙고, `UNSIGNED-SMARTSCREEN-NOTICE.txt`가 함께 업로드됩니다. 이 파일은 공개 배포용으로 권장하지 않습니다.
+
+서명 인증서가 설정된 경우 workflow는 EXE의 Authenticode 서명을 검증하고, 검증 결과를 `authenticode-signature.txt`로 함께 업로드합니다. 공개 배포에는 `signed` artifact만 사용하세요.
+
+## EV 코드 서명 빌드
+
+EV 코드 서명 인증서는 일반적으로 개인키를 PFX 파일로 내보낼 수 없고 USB 토큰, 스마트카드, HSM 같은 하드웨어/보안 저장소에 묶입니다. 그래서 GitHub-hosted runner에 secret 파일만 넣는 방식으로는 EV 서명을 완료할 수 없습니다.
+
+EV 서명용 workflow는 `.github/workflows/build-windows-ev.yml`에 추가되어 있습니다. 사용 방법:
+
+1. Windows self-hosted runner를 준비하고 `ev-signing` label을 붙입니다.
+2. 해당 runner에 EV 토큰/스마트카드 드라이버와 Windows SDK SignTool이 동작하도록 설정합니다.
+3. EV 인증서를 Windows 인증서 저장소에서 사용할 수 있게 합니다.
+4. GitHub Secrets에 둘 중 하나를 등록합니다.
+   - `EV_CERT_SUBJECT_NAME`: EV 인증서 Subject 이름 일부
+   - `EV_CERT_SHA1`: EV 인증서 SHA-1 thumbprint
+5. GitHub Actions에서 `Build Windows EV-Signed EXE` workflow를 수동 실행합니다.
+6. 결과 artifact `zorlinq32-desktop-windows-ev-signed`만 공개 배포에 사용합니다.
+
+로컬 또는 self-hosted runner에서 직접 실행할 수도 있습니다.
+
+```bash
+EV_CERT_SUBJECT_NAME="Your Company, Inc." npm run package:win:ev
+```
