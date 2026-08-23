@@ -1,0 +1,52 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - work
+  pull_request:
+
+jobs:
+  build-windows-exe:
+    name: Build Zorlinq32 Desktop EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build portable Windows EXE
+        run: npm run package:win
+
+      - name: Build source zip fallback
+        run: npm run package:zip
+
+      - name: Upload Windows EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zorlinq32-desktop-windows-exe
+          path: |
+            dist/*.exe
+            dist/win-unpacked/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload source zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zorlinq32-desktop-source-zip
+          path: dist/zorlinq32-desktop-source.zip
+          if-no-files-found: error
+          retention-days: 14
