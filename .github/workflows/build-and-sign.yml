@@ -1,0 +1,127 @@
+name: Build and Sign Windows Desktop App
+
+# SignPath.io(오픈소스 무료 플랜) 심사가 승인된 "이후"에 쓰는 워크플로입니다.
+# 심사/승인 자체는 자동화할 수 없고, 사람이 SignPath 대시보드에서 프로젝트를 승인해야
+# 아래에서 쓰는 SIGNPATH_* 시크릿 값들이 발급됩니다. (README 참고)
+
+on:
+  push:
+    tags:
+      - "v*"          # v0.1.1 처럼 태그를 밀면 자동 실행
+  workflow_dispatch: {} # 수동 실행 버튼으로도 실행 가능
+
+permissions:
+  id-token: write   # SignPath OIDC 인증에 필요
+  contents: write   # 서명된 파일을 릴리즈에 업로드하기 위해 필요
+
+jobs:
+  build-unsigned:
+    name: Build unsigned Windows artifacts
+    runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Read version from package.json
+        id: version
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # signAndEditExecutable: false 이므로 electron-builder는 서명 없이 빌드만 합니다.
+      - name: Build portable + installer (unsigned)
+        run: |
+          npm run package:win
+          npm run package:win:installer
+
+      - name: Locate build outputs
+        id: outputs
+        shell: bash
+        run: |
+          PORTABLE=$(ls dist/*.exe | grep -iv "Setup" | head -n1)
+          INSTALLER=$(ls dist/*.exe | grep -i "Setup" | head -n1)
+          echo "portable=$PORTABLE" >> "$GITHUB_OUTPUT"
+          echo "installer=$INSTALLER" >> "$GITHUB_OUTPUT"
+
+      - name: Upload unsigned artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-binaries
+          path: |
+            dist/*.exe
+          if-no-files-found: error
+
+  sign:
+    name: Submit to SignPath for signing
+    needs: build-unsigned
+    runs-on: windows-latest
+    steps:
+      - name: Download unsigned artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: unsigned-windows-binaries
+          path: unsigned
+
+      # 서명 대상 파일들을 SignPath에 zip으로 업로드합니다.
+      - name: Zip unsigned artifacts for signing
+        shell: bash
+        run: |
+          cd unsigned
+          zip -r ../unsigned-artifacts.zip .
+
+      # 공식 SignPath GitHub Action. 서명 요청을 제출하고, 완료될 때까지 기다렸다가
+      # 서명된 결과물을 다시 내려받습니다.
+      - name: Submit signing request to SignPath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: "${{ secrets.SIGNPATH_API_TOKEN }}"
+          organization-id: "${{ secrets.SIGNPATH_ORGANIZATION_ID }}"
+          project-slug: "zorlinq32"
+          signing-policy-slug: "release-signing"
+          artifact-configuration-slug: "windows-exe"
+          github-artifact-id: "" # download-artifact로 이미 받았으므로 로컬 경로 사용
+          input-artifact-path: "unsigned-artifacts.zip"
+          output-artifact-path: "signed-artifacts.zip"
+          wait-for-completion: true
+
+      - name: Unzip signed artifacts
+        shell: bash
+        run: |
+          mkdir -p signed
+          unzip -o signed-artifacts.zip -d signed
+
+      - name: Upload signed artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-binaries
+          path: signed/*.exe
+          if-no-files-found: error
+
+  release:
+    name: Attach signed binaries to GitHub Release
+    needs: [build-unsigned, sign]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download signed artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-windows-binaries
+          path: signed
+
+      - name: Create GitHub Release with signed binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          files: signed/*.exe
+          name: "Zorlinq32 Desktop v${{ needs.build-unsigned.outputs.version }}"
+          generate_release_notes: true
