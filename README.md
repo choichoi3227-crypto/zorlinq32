@@ -45,3 +45,17 @@ npm run package:zip
 ```
 
 생성된 `dist/zorlinq32-desktop-source.zip`을 Windows PC로 옮긴 뒤 압축을 풀고 `npm install`, `npm run package:win`을 실행하면 EXE 실행 파일을 만들 수 있습니다.
+
+## Microsoft Defender SmartScreen 경고 줄이기
+
+새로 만든 EXE가 코드 서명되지 않았거나 배포 평판이 아직 없으면 Windows에서 "인식할 수 없는 앱" SmartScreen 경고가 표시될 수 있습니다. 이 문제는 코드 문제가 아니라 Windows 배포/서명 평판 문제입니다.
+
+권장 배포 방식:
+
+1. OV 또는 EV 코드 서명 인증서를 발급받습니다. EV 인증서는 초기 SmartScreen 평판 형성에 더 유리합니다.
+2. 인증서를 P12/PFX 파일로 내보낸 뒤 base64로 인코딩합니다.
+3. GitHub 저장소 Secrets에 다음 값을 등록합니다.
+   - `WINDOWS_CODESIGN_P12_BASE64`: base64로 인코딩한 P12/PFX 인증서 내용
+   - `WINDOWS_CODESIGN_PASSWORD`: 인증서 비밀번호
+4. `.github/workflows/build-windows.yml` 워크플로우를 실행하면 `electron-builder`가 해당 secrets를 사용해 EXE에 서명합니다.
+5. 서명된 앱도 최초 배포 직후에는 평판이 부족할 수 있으므로, 동일 인증서로 꾸준히 배포해 평판을 쌓아야 합니다.

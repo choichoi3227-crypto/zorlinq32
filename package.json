@@ -32,13 +32,13 @@
       "target": [
         "portable",
         "zip"
-      ],
-      "signAndEditExecutable": false
+      ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "forceCodeSigning": false
   },
   "devDependencies": {
     "@electron/packager": "^18.3.6",

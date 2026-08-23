@@ -29,6 +29,11 @@ jobs:
 
       - name: Build portable Windows EXE
         run: npm run package:win
+        env:
+          # Optional code-signing secrets. If configured, electron-builder signs the EXE,
+          # which reduces Microsoft Defender SmartScreen warnings after reputation builds.
+          CSC_LINK: ${{ secrets.WINDOWS_CODESIGN_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_PASSWORD }}
 
       - name: Build source zip fallback
         run: npm run package:zip
