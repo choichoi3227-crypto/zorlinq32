@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zorlinq32 Desktop</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside>
+    <h1>Zorlinq32</h1>
+    <button data-view="browser" class="active">내장 브라우저</button>
+    <button data-view="writer">글쓰기</button>
+    <button data-view="site">사이트 관리</button>
+    <button data-view="plugins">플러그인/테마</button>
+    <button data-view="flow">Google Flow 이미지</button>
+    <button data-view="settings">원격 설정</button>
+  </aside>
+  <main>
+    <section id="browser" class="view active">
+      <h2>워드프레스 내장 브라우저</h2>
+      <p>등록한 사이트를 선택하면 앱 내부 프레임에서 워드프레스 관리자 화면을 열 수 있습니다. 애플리케이션 비밀번호는 REST API 자동 작업에 사용됩니다.</p>
+      <div class="row"><select id="siteSelect"></select><button id="openAdmin">관리자 열기</button><button id="refreshPosts">최근 글</button></div>
+      <webview id="wpWebview" partition="persist:wordpress" src="about:blank"></webview>
+    </section>
+
+    <section id="writer" class="view">
+      <h2>글쓰기</h2>
+      <input id="postTopic" placeholder="AI 글 주제" />
+      <div class="row"><button id="generatePost">Gemini로 초안 만들기</button><button id="workerPost">Worker로 원격 글쓰기 요청</button></div>
+      <input id="postTitle" placeholder="제목" />
+      <textarea id="postContent" placeholder="본문 HTML 또는 글 내용을 입력하세요"></textarea>
+      <div class="row"><select id="postStatus"><option value="draft">임시글</option><option value="publish">즉시 발행</option></select><button id="publishPost">워드프레스로 보내기</button></div>
+      <p class="hint">원격 설정에 Cloudflare Worker와 Gemini API 키를 저장하면 앱에서 초안 생성 또는 원격 글쓰기 요청을 실행합니다.</p>
+    </section>
+
+    <section id="site" class="view">
+      <h2>사이트 관리</h2>
+      <button id="testConnection">현재 사이트 연결 테스트</button>
+      <pre id="siteOutput"></pre>
+    </section>
+
+    <section id="plugins" class="view">
+      <h2>플러그인/테마 관리</h2>
+      <div class="row"><button id="loadPlugins">플러그인 목록</button><button id="loadThemes">테마 목록</button><button id="bundlePlugin">내장 플러그인 zip 만들기</button></div>
+      <p class="hint">이 앱 패키지에는 <code>zorlinq32</code> 워드프레스 플러그인 폴더가 함께 포함되도록 빌드 설정했습니다.</p>
+      <pre id="pluginOutput"></pre>
+    </section>
+
+    <section id="flow" class="view">
+      <h2>Google Flow 이미지 생성</h2>
+      <p>최초 1회 <b>Flow 로그인</b>으로 사용자 브라우저에서 계정을 연결하고, 이후 이미지 생성 시마다 사용자 기본 브라우저에서 Flow를 엽니다.</p>
+      <div class="row"><button id="linkFlow">Flow 로그인</button><button id="unlinkFlow">연동 해제</button><span id="flowState"></span></div>
+      <textarea id="flowPrompt" placeholder="이미지 생성 프롬프트"></textarea>
+      <button id="generateImage">Flow로 이미지 만들기</button>
+    </section>
+
+    <section id="settings" class="view">
+      <h2>원격 설정</h2>
+      <div class="grid">
+        <label>사이트 이름<input id="wpName" placeholder="내 사이트" /></label>
+        <label>워드프레스 링크<input id="wpUrl" placeholder="https://example.com" /></label>
+        <label>사용자명<input id="wpUser" placeholder="admin" /></label>
+        <label>앱 애플리케이션 비밀번호<input id="wpPassword" type="password" /></label>
+        <label>Cloudflare Worker URL<input id="workerUrl" placeholder="https://worker.example.workers.dev" /></label>
+        <label>Worker Bearer Token<input id="workerToken" type="password" /></label>
+        <label>Gemini API Key<input id="geminiKey" type="password" /></label>
+      </div>
+      <button id="saveSettings">설정 저장</button>
+    </section>
+  </main>
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

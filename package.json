@@ -1,0 +1,50 @@
+{
+  "name": "zorlinq32-windows-app",
+  "version": "0.1.0",
+  "description": "Windows desktop app for managing WordPress sites with Zorlinq32, Cloudflare Worker, Gemini API, and browser-assisted Google Flow workflows.",
+  "main": "desktop/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "package:win": "electron-builder --win portable --x64",
+    "package:zip": "node scripts/create-desktop-zip.js",
+    "package:win:installer": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.info100.zorlinq32.desktop",
+    "productName": "Zorlinq32 Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "zorlinq32/**/*",
+      "README.md",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "zorlinq32",
+        "to": "bundled-wordpress-plugin/zorlinq32"
+      }
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "forceCodeSigning": false
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.1.8",
+    "archiver": "^7.0.1"
+  },
+  "author": "인포100"
+}
