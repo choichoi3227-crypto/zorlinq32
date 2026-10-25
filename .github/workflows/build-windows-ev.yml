@@ -1,0 +1,60 @@
+name: Build Windows EV-Signed EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-ev-exe:
+    name: Build EV-signed Zorlinq32 Desktop EXE
+    runs-on:
+      - self-hosted
+      - windows
+      - ev-signing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build EV-signed portable Windows EXE
+        shell: pwsh
+        env:
+          # Configure one of these secrets to identify the EV certificate installed
+          # in the Windows certificate store on the self-hosted runner.
+          EV_CERT_SUBJECT_NAME: ${{ secrets.EV_CERT_SUBJECT_NAME }}
+          EV_CERT_SHA1: ${{ secrets.EV_CERT_SHA1 }}
+        run: npm run package:win:ev
+
+      - name: Verify EV Authenticode signature
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path dist -Filter *.exe | Select-Object -First 1
+          if (-not $exe) { throw "No EXE artifact found in dist." }
+          $signature = Get-AuthenticodeSignature -FilePath $exe.FullName
+          $signature | Format-List | Out-File -FilePath dist/authenticode-signature.txt
+          Get-Content dist/authenticode-signature.txt
+          if ($signature.Status -ne 'Valid') {
+            throw "EXE Authenticode signature is not valid: $($signature.Status)"
+          }
+          if ($signature.SignerCertificate.Subject -notmatch 'EV|Extended Validation|O=') {
+            Write-Warning "Signature is valid, but GitHub Actions cannot prove the certificate validation class from the Subject alone. Confirm this certificate is your EV code-signing certificate in the CA portal."
+          }
+
+      - name: Upload EV-signed Windows EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zorlinq32-desktop-windows-ev-signed
+          path: |
+            dist/*.exe
+            dist/win-unpacked/**
+            dist/authenticode-signature.txt
+          if-no-files-found: error
+          retention-days: 14
